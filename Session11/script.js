@@ -75,9 +75,10 @@ const inputClosePin = document.querySelector('.form__input--pin');
 /////////////////////////////////////////////////
 
 //148: creating dom element
-const displayMovements = function(acc){
+const displayMovements = function(movements, sort=false){
   containerMovements.innerHTML=''
-  acc.movements.forEach(function(mov, i){
+  const movs= sort ? movements.sort((a,b)=>a-b):movements.sort((a,b)=>b-a)
+  movs.forEach(function(mov, i){
     const type= mov>0 ? 'deposit' : 'withdrawal'
     const html =`
     <div class="movements__row">
@@ -133,7 +134,7 @@ const updateUI=(acc)=>{
   totalDisplayMovements(acc)
     //show movements
 
-    displayMovements(acc)
+    displayMovements(acc.movements)
     //show summary
     calcDisplaysummary(acc.movements)
 }
@@ -177,12 +178,110 @@ btnTransfer.addEventListener('click',(e)=>{
 
     }
     updateUI(currentUser)
-    console.log(currentUser)
 })
+
+/**<-----------------------------------------------------------> */
+//Request loan
+btnLoan.addEventListener('click',(e)=>{
+  e.preventDefault()
+  const amount = Number(inputLoanAmount.value)
+
+  if(amount>0 && currentUser.movements.some(mov=>{
+    return mov>=amount*0.1
+  })){
+    //add movement
+    currentUser.movements.push(amount)
+    //update ui
+    updateUI(currentUser)
+
+  }
+  inputLoanAmount.value=''
+})
+
+//sort movements
+let sorted=false
+btnSort.addEventListener('click',(e)=>{
+  e.preventDefault()
+  displayMovements(currentUser.movements,!sorted)
+  sorted=!sorted
+  console.log(sorted)
+})
+
+
+/** <--------------------------------------------------------> */
+//161: the findindex method
+
+btnClose.addEventListener('click',(e)=>{
+  e.preventDefault();
+  if(inputCloseUsername.value ===currentUser.username 
+    && Number(inputClosePin.value)){
+      const index= accounts.findIndex(
+        acc=>acc.username==currentUser.username
+        )
+        //delete account
+        accounts.splice(index,1);
+
+        containerApp.style.opacity=0
+        inputCloseUsername.value=inputClosePin.value=''
+        labelWelcome.textContent='login to get started'
+      
+  }
+})
+
+/** <--------------------------------------------------------> */
+
+/** <--------------------------------------------------------> */
+
+/*//164: sorting arrays
+//string
+const owners=['Jonas', 'Zacg', 'Adam', 'Martha']
+console.log(owners.sort())
+
+//numbers
+const movements = [200, 450, -400, 3000, -650, -130, 70, 1300]
+console.log(movements.sort((a,b)=>b-a))
+
+
+/** <--------------------------------------------------------> */
+/*
+//163: flat and latmap
+//flat
+const arr= [[1,2,3],[4,5,6],7,8]
+console.log(arr.flat())
+const arrDeep=[[1,[2,3]],[4,[5,6]],7,8]
+console.log(arrDeep.flat(2))
+
+//flat map
+const allMovements=accounts.map(mov=>mov.movements).flat().reduce((acc, mov)=>acc+mov, 0)
+console.log(allMovements)
+const allMovements2=accounts.flatMap(mov=>mov.movements).reduce((acc, mov)=>acc+mov, 0)
+console.log(allMovements2)
+
 
 
 
 /** <--------------------------------------------------------> */
+//162: some and every method
+/*
+const movements = [200, 450, -400, 3000, -650, -130, 70, 1300];
+//equality
+console.log(movements.includes(-130))
+
+
+//separate callback
+
+const deposit=(mov)=>mov>0
+
+//some: Condition chỉ cần đúng 1 là đúng
+console.log(movements.some(deposit))
+//every: tất cả đều đúng ->true ngược lại, 1 cái sai thì false
+console.log(movements.every(deposit))
+
+
+
+
+/** <--------------------------------------------------------> */
+
 /*
 //158: The find method
 const movements = [200, 450, -400, 3000, -650, -130, 70, 1300];

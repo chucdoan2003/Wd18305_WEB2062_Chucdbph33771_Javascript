@@ -1,0 +1,14 @@
+{
+  "products": [
+    {
+      "name": "sp1",
+      "price": 1000,
+      "description": "Mo ta san pham 1"
+    },
+    {
+      "name": "sp2",
+      "price": 1000,
+      "description": "Mo ta san pham 2"
+    }
+  ]
+}
