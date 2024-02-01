@@ -187,12 +187,164 @@ createImage('img/img-1.jpg')
   .then(() => {
     // currentImg = img;
     currentImg.style.display = 'none';
-    return createImage('img/img-2.jpg');
+    // return createImage('img/img-2.jpg');
   })
   .then(img => {
     console.log('image 2 loaded');
   })
   .catch(err => console.log(err));
+
+/**<--------------------------------------------------------> */
+//coding challenge 3: lab 8.3
+//part1
+const loadNPause = async function () {
+  try {
+    //load image 1
+    let img1 = await createImage('img/img-1.jpg');
+    await wait(2);
+    img1.style.display = 'none';
+    //load image 1
+    let img2 = await createImage('img/img-2.jpg');
+    await wait(2);
+    img2.style.display = 'none';
+    //load image 1
+    let img3 = await createImage('img/img-3.jpg');
+    await wait(2);
+    img3.style.display = 'none';
+  } catch (err) {
+    console.error(err);
+  }
+};
+// loadNPause();
+
+//part 2
+const loadAll = async function (imgArr) {
+  try {
+    const imgs = imgArr.map(async img => await createImage(img));
+    console.log(imgs);
+    const imgsEl = await Promise.all(imgs);
+    imgsEl.forEach(img => img.classList.add('parallel'));
+    console.log(imgsEl);
+  } catch (err) {
+    console.log(err);
+  }
+};
+loadAll(['img/img-1.jpg', 'img/img-2.jpg', 'img/img-3.jpg']);
+
+/**<--------------------------------------------------------> */
+
+const getPosition = function () {
+  return new Promise(function (resolve, reject) {
+    // navigator.geolocation.getCurrentPosition(
+    //   position => resolve(position),
+    //   err => reject(err)
+    // );
+    navigator.geolocation.getCurrentPosition(resolve, reject);
+  });
+};
+const whereAmi = function () {
+  getPosition()
+    .then(post => {
+      console.log(post);
+      const { latitude: lat, longitude: lng } = post.coords;
+      return fetch(`https://geocode.xyz/${lat},${lng}?geoit=json`);
+    })
+    .then(res => {
+      // console.log(res);
+      if (!res.ok) throw new Error(`Problem with geocoding ${res.status}`);
+      return res.json();
+    })
+    .then(data => {
+      // console.log(data);
+      return fetch(`https://restcountries.com/v2/name/${data.country}`);
+    })
+    .then(res => {
+      // console.log(res);
+      if (!res.ok) throw new Error(`Country not found`);
+      return res.json();
+    })
+    .then(data => renderCountry(data[0]))
+    .catch(err => console.log(`${err.message}`));
+};
+
+btn.addEventListener('click', whereAmi);
+/**<--------------------------------------------------------> */
+
+//163: Consuming Promises with Async/Await
+const whereAmi2 = async function () {
+  try {
+    // const pos = await getPosition();
+    // const { latitude: lat, longitude: lng } = pos.coords;
+    // //reverse geocoding
+    // const resGeo = await fetch(`https://geocode.xyz/${lat},${lng}?geoit=json`);
+    // if (!resGeo.ok)
+    //   throw new Error('Problem getting location data something wrong');
+
+    // const dataGeo = await resGeo.json();
+    // console.log(dataGeo);
+
+    // const a = fetch(`https://restcountries.com/v2/name/${country}`);
+    const res = await fetch(`https://restcountries.com/v2/name/vietnam`);
+    if (!res.ok) throw new Error('Problem with country ');
+    const data = await res.json();
+    renderCountry(data[0]);
+
+    return `you are viet nam`;
+    // console.log(res);
+    // console.log(data);
+  } catch (err) {
+    console.log(err);
+    renderError(`some thing error ${err.message}`);
+  }
+};
+// console.log('1: started');
+
+// (async function () {
+//   try {
+//     const mycountry = await whereAmi2();
+//     console.log(mycountry);
+//   } catch (err) {
+//     renderError(err.message);
+//   }
+//   console.log(`3: end`);
+// })();
+
+// try {
+//   let y = 1;
+//   const x = 2;
+//   y = 3;
+// } catch (err) {
+//   alert(err.message);
+// }
+
+/**<--------------------------------------------------------> */
+const get3Countries = async function (c1, c2, c3) {
+  try {
+    // const [data1] = await getJson(`https://restcountries.com/v2/name/${c1}`);
+    // const [data2] = await getJson(`https://restcountries.com/v2/name/${c2}`);
+    // const [data3] = await getJson(`https://restcountries.com/v2/name/${c3}`);
+    // console.log(data1.capital, data2.capital, data3.capital);
+
+    const data = await Promise.all([
+      getJson(`https://restcountries.com/v2/name/${c1}`),
+      getJson(`https://restcountries.com/v2/name/${c2}`),
+      getJson(`https://restcountries.com/v2/name/${c3}`),
+    ]);
+    const data2 = Promise.all([
+      getJson(`https://restcountries.com/v2/name/${c1}`),
+      getJson(`https://restcountries.com/v2/name/${c2}`),
+      getJson(`https://restcountries.com/v2/name/${c3}`),
+    ]);
+    console.log(data.map(d => d[0].capital));
+    console.log(data2);
+    data2.then(data => {
+      console.log(data.map(d => d[0].capital));
+    });
+  } catch (err) {
+    console.log(err);
+  }
+};
+// get3Countries('vietnam', 'china', 'usa');
 
 /**<--------------------------------------------------------> */
 //259: the event loop practice
@@ -248,40 +400,5 @@ wait(1)
 /**<--------------------------------------------------------> */
 
 //261: promisifying the geolocation api
-/*
-const getPosition = function () {
-  return new Promise(function (resolve, reject) {
-    // navigator.geolocation.getCurrentPosition(
-    //   position => resolve(position),
-    //   err => reject(err)
-    // );
-    navigator.geolocation.getCurrentPosition(resolve, reject);
-  });
-};
-const whereAmi = function () {
-  getPosition()
-    .then(post => {
-      console.log(post);
-      const { latitude: lat, longitude: lng } = post.coords;
-      return fetch(`https://geocode.xyz/${lat},${lng}?geoit=json`);
-    })
-    .then(res => {
-      // console.log(res);
-      if (!res.ok) throw new Error(`Problem with geocoding ${res.status}`);
-      return res.json();
-    })
-    .then(data => {
-      // console.log(data);
-      return fetch(`https://restcountries.com/v2/name/${data.country}`);
-    })
-    .then(res => {
-      // console.log(res);
-      if (!res.ok) throw new Error(`Country not found`);
-      return res.json();
-    })
-    .then(data => renderCountry(data[0]))
-    .catch(err => console.log(`${err.message}`));
-};
 
-btn.addEventListener('click', whereAmi);
 /**<--------------------------------------------------------> */
